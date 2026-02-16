@@ -6,7 +6,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libonig-dev libxml2-dev libsqlite3-dev libicu-dev \
     nodejs npm \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install pdo pdo_sqlite sqlite3 mbstring xml bcmath gd zip intl \
+    && docker-php-ext-install mbstring xml bcmath gd zip intl \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Install Composer
