@@ -18,8 +18,8 @@ class DatabaseSeeder extends Seeder
     {
         // Admin user
         User::updateOrCreate(
-            ['email' => 'admin@mkp.com'],
-            ['name' => 'Admin', 'password' => bcrypt('Admin2026!')]
+            ['email' => 'contacto@mobilkitchenpro.com'],
+            ['name' => 'Admin', 'password' => bcrypt('Clave2230!')]
         );
 
         // Projects
