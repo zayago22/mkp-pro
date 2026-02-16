@@ -41,8 +41,33 @@ RUN mkdir -p database storage/app/public storage/framework/sessions \
     && chmod -R 775 storage bootstrap/cache database
 
 # Create entrypoint script for runtime initialization
-RUN printf '#!/bin/bash\nset -e\n\n# Create SQLite database if not exists\ntouch /app/database/database.sqlite\nchmod 664 /app/database/database.sqlite\n\n# Run migrations\nphp artisan migrate --force\n\n# Create storage link (ignore if exists)\nphp artisan storage:link 2>/dev/null || true\n\n# Cache config\nphp artisan optimize\n\n# Start server\nexec php artisan serve --host=0.0.0.0 --port=8080\n' > /app/entrypoint.sh \
-    && chmod +x /app/entrypoint.sh
+COPY <<'EOF' /app/entrypoint.sh
+#!/bin/bash
+set -e
+
+cd /app
+
+# Create SQLite database if not exists
+touch /app/database/database.sqlite
+chmod 664 /app/database/database.sqlite
+
+# Run migrations
+php artisan migrate --force
+
+# Seed database if empty (first run only)
+php artisan db:seed --force 2>/dev/null || true
+
+# Create storage link (ignore if exists)
+php artisan storage:link 2>/dev/null || true
+
+# Clear any stale cache and re-cache
+php artisan optimize:clear
+php artisan optimize
+
+# Start server
+exec php artisan serve --host=0.0.0.0 --port=8080
+EOF
+RUN chmod +x /app/entrypoint.sh
 
 # Remove build-time .env (runtime env vars come from Coolify)
 RUN rm -f .env
