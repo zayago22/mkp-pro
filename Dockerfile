@@ -47,15 +47,16 @@ set -e
 
 cd /app
 
-# Create SQLite database if not exists
+# Create fresh SQLite database
+rm -f /app/database/database.sqlite
 touch /app/database/database.sqlite
 chmod 664 /app/database/database.sqlite
 
 # Run migrations
 php artisan migrate --force
 
-# Seed database if empty (first run only)
-php artisan db:seed --force 2>/dev/null || true
+# Seed database
+php artisan db:seed --force
 
 # Create storage link (ignore if exists)
 php artisan storage:link 2>/dev/null || true
