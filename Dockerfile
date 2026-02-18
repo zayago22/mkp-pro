@@ -47,6 +47,29 @@ set -e
 
 cd /app
 
+# Write APP_KEY from Coolify env into .env file
+if [ -n "$APP_KEY" ]; then
+    sed -i "s|^APP_KEY=.*|APP_KEY=$APP_KEY|" /app/.env
+fi
+
+# Write APP_ENV from Coolify env into .env file
+if [ -n "$APP_ENV" ]; then
+    sed -i "s|^APP_ENV=.*|APP_ENV=$APP_ENV|" /app/.env
+fi
+
+# Write APP_DEBUG from Coolify env into .env file
+if [ -n "$APP_DEBUG" ]; then
+    sed -i "s|^APP_DEBUG=.*|APP_DEBUG=$APP_DEBUG|" /app/.env
+fi
+
+# Write APP_URL from Coolify env into .env file
+if [ -n "$APP_URL" ]; then
+    sed -i "s|^APP_URL=.*|APP_URL=$APP_URL|" /app/.env
+else
+    # Default to localhost if not set to avoid malformed host errors
+    sed -i "s|^APP_URL=.*|APP_URL=http://localhost:8080|" /app/.env
+fi
+
 # Create fresh SQLite database
 rm -f /app/database/database.sqlite
 touch /app/database/database.sqlite
@@ -65,13 +88,17 @@ php artisan storage:link 2>/dev/null || true
 php artisan optimize:clear
 php artisan optimize
 
+echo "=== App ready ==="
+echo "APP_KEY is set: $([ -n "$APP_KEY" ] && echo 'YES' || echo 'NO')"
+echo "APP_ENV: $APP_ENV"
+echo "APP_DEBUG: $APP_DEBUG"
+
 # Start server
 exec php artisan serve --host=0.0.0.0 --port=8080
 EOF
 RUN chmod +x /app/entrypoint.sh
 
-# Remove build-time .env (runtime env vars come from Coolify)
-RUN rm -f .env
+# Keep .env as fallback defaults (Coolify env vars override at runtime)
 
 EXPOSE 8080
 
