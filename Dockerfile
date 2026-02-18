@@ -65,6 +65,8 @@ fi
 # Write APP_URL from Coolify env into .env file
 if [ -n "$APP_URL" ]; then
     sed -i "s|^APP_URL=.*|APP_URL=$APP_URL|" /app/.env
+    # Also set ASSET_URL to same value for Vite assets
+    sed -i "s|^ASSET_URL=.*|ASSET_URL=$APP_URL|" /app/.env
 else
     # Default to localhost if not set to avoid malformed host errors
     sed -i "s|^APP_URL=.*|APP_URL=http://localhost:8080|" /app/.env
